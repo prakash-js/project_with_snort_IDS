@@ -26,7 +26,6 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential SQL I
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"<";sid:10000031;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"alert(";nocase;sid:10000032;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"alert%28";nocase;sid:10000033;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"%3C";sid:10000033;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"%3E";sid:10000034;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:">";sid:10000035;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"%29";sid:10000036;rev:1;)
@@ -37,6 +36,8 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS D
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"script";nocase;sid:10000041;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"XSS Detected";content:"<script>";nocase;sid:10000042;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"XSS Detected";content:"<img>";nocase;sid:10000043;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential XSS Detected";content:"%3C";sid:10000044;rev:1;)
+
 
 
 #Command Injection
@@ -65,37 +66,37 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential Path 
 
 
 #Brute force attack
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/login.php";http_uri;msg:"BruteForce attack Detected";content:"Login=";http_client_body;sid:10000091;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/";http_uri;msg:"BruteForce attack Detected";content:"Login=Login";http_client_body;sid:10000092;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/?username=";http_uri;msg:"BruteForce attack Detected";sid:10000093;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/login.php";http_uri;msg:"BruteForce attack Detected";content:"Login=";http_client_body;sid:10000091;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/";http_uri;msg:"BruteForce attack Detected";content:"Login=Login";http_client_body;sid:10000092;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/?username=";http_uri;msg:"BruteForce attack Detected";sid:10000093;rev:1;)
 
 
 #DOS attack
-alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "TCP-flag-type flood Attack  Detected"; sid:10000101;)
-alert icmp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "ICMP flood Attack  Detected"; sid:10000102;)
-alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense TCP-flag-type flood attack is Detected "; sid:10000103;)
-alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "UDP flood Attack Detected"; sid:10000104;)
-alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense udp flood Attack Detected"; sid:10000105;)
+alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "TCP-flag-type flood Attack  Detected"; sid:10000101;rev:1;)
+alert icmp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "ICMP flood Attack  Detected"; sid:10000102;rev:1;)
+alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense TCP-flag-type flood attack is Detected "; sid:10000103;rev:1;)
+alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "UDP flood Attack Detected"; sid:10000104;rev:1;)
+alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense udp flood Attack Detected"; sid:10000105;rev:1;)
 
 
 
 #--------------------------------------
 #Reverse Connection Detection
-alert tcp $HOME_NET !80 -> $EXTERNAL_NET !80 (msg:"Reverse Connection Detected"; flags:PA; sid:1100001;)
-alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Reverse Connection Detected";content:"/bin/bash";nocase;sid:1100002;)
-alert tcp $HOME_NET  !80 -> $EXTERNAL_NET !80 (msg:"Reverse Connection Detected";content:"/bin/bash";nocase;sid:1100003;)
-alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Reverse  Connection Detected";content:"service --status-all";nocase;sid:1100004;)
-alert tcp $HOME_NET !80 ->  $EXTERNAL_NET !80 (msg:"Reverse  Connection Detected";content:"service --status-all";nocase;sid:1100005;)
-alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Reverse  Connection Detected";content:"sudo -l";nocase;sid:1100006;)
-alert tcp $HOME_NET !80 ->  $EXTERNAL_NET !80 (msg:"Reverse Connection Detected";content:"sudo -l";nocase;sid:1100007;)
-alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"www-data";nocase;sid:1100008;)
-alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"www-data";nocase;sid:1100009;)
-alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"/bin/bash";nocase; sid:11000010;)
-alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"/bin/bash";nocase; sid:11000011;)
-alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"sudo -l";nocase; sid:11000012;)
-alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"sudo -l";nocase; sid:11000013;)
-alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"pwd";nocase; sid:11000014;)
-alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"pwd";nocase; sid:11000015;)
+alert tcp $HOME_NET !80 -> $EXTERNAL_NET !80 (msg:"Reverse Connection Detected"; flags:PA; sid:1100001;rev:1;)
+alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Reverse Connection Detected";content:"/bin/bash";nocase;sid:1100002;rev:1;)
+alert tcp $HOME_NET  !80 -> $EXTERNAL_NET !80 (msg:"Reverse Connection Detected";content:"/bin/bash";nocase;sid:1100003;rev:1;)
+alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Reverse  Connection Detected";content:"service --status-all";nocase;sid:1100004;rev:1;)
+alert tcp $HOME_NET !80 ->  $EXTERNAL_NET !80 (msg:"Reverse  Connection Detected";content:"service --status-all";nocase;sid:1100005;rev:1;)
+alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Reverse  Connection Detected";content:"sudo -l";nocase;sid:1100006;rev:1;)
+alert tcp $HOME_NET !80 ->  $EXTERNAL_NET !80 (msg:"Reverse Connection Detected";content:"sudo -l";nocase;sid:1100007;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"www-data";nocase;sid:1100008;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"www-data";nocase;sid:1100009;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"/bin/bash";nocase; sid:11000010;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"/bin/bash";nocase; sid:11000011;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"sudo -l";nocase; sid:11000012;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"sudo -l";nocase; sid:11000013;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Reverse Connection via UDP Detected";content:"pwd";nocase; sid:11000014;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Reverse Connection via UDP Detected";content:"pwd";nocase; sid:11000015;rev:1;)
 
 
 
