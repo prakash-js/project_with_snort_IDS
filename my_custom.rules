@@ -64,7 +64,7 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Path Traversal 
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;msg:"Potential Path Traversal Detected";content:"%00";nocase;sid:10000079;rev:1;)
 
 
-#Directory Listing
+#Brute force attack
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/login.php";http_uri;msg:"BruteForce attack Detected";content:"Login=";http_client_body;sid:10000091;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/";http_uri;msg:"BruteForce attack Detected";content:"Login=Login";http_client_body;sid:10000092;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/?username=";http_uri;msg:"BruteForce attack Detected";sid:10000093;)
