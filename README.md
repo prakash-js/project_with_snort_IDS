@@ -1,4 +1,4 @@
-# 🛡️Snort IDS Implementation on DVWA
+# 🛡️Intrusion Detection Setup with Snort for DVWA
 
 A self-initiated project that demonstrates how **Snort IDS** can be used to monitor and detect attacks against the **Damn Vulnerable Web Application (DVWA)** using custom detection rules.
 
