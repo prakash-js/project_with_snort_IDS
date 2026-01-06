@@ -23,7 +23,6 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: tr
 
 
 #XSS
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Detected";content:"<";sid:10000031;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Detected";content:"alert(";nocase;sid:10000032;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Detected";content:"alert%28";nocase;sid:10000033;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Detected";content:"%3E";sid:10000034;rev:1;)
