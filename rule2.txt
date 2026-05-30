@@ -76,26 +76,6 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Cross Site Scripting (XSS) Att
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Cross Site Scripting (XSS) Attempt";flow:to_server,established;detection_filter: track by_src,count 2, seconds 20;content:"alert(";http_uri;nocase;classtype:web-application-attack;sid:100000199;rev:1;)
 
 
-#Header Scanner
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Nikto Scanner Detected";flow:to_server,established;http_header:field user-agent;content:"Nikto";nocase;classtype:attempted-recon;sid:10000124;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Sqlmap Scanner Detected";flow:to_server,established;http_header:field user-agent;content:"sqlmap";nocase;classtype:attempted-recon;sid:10000125;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"FFUF Scanner Detected";flow:to_server,established;http_header:field user-agent;content:"FFUF";nocase;classtype:attempted-recon;sid:10000126;rev:1;)
-
-#Brute force attack
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/login.php";http_uri;msg:"BruteForce attack Detected";content:"Login=";http_client_body;classtype:web-application-attack;sid:10000091;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/";http_uri;msg:"BruteForce attack Detected";content:"Login=Login";http_client_body;classtype:web-application-attack;sid:10000092;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/?username=";http_uri;msg:"BruteForce attack Detected";classtype:web-application-attack;sid:10000093;rev:1;)
-
-#DOS attack (high Number Request)
-alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "TCP-flag-type flood Attack  Detected";classtype:attempted-dos; sid:10000101;rev:1;)
-alert icmp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "ICMP flood Attack  Detected";classtype:attempted-dos; sid:10000102;rev:1;)
-alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense TCP-flag-type flood attack is Detected ";classtype:attempted-dos; sid:10000103;rev:1;)
-alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "UDP flood Attack Detected";classtype:attempted-dos; sid:10000104;rev:1;)
-alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense udp flood Attack Detected";classtype:attempted-dos; sid:10000105;rev:1;)seconds 20;content:"prompt(";http_uri;nocase;classtype:web-application-attack;sid:100000198;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Cross Site Scripting (XSS) Attempt";flow:to_server,established;detection_filter:track by_src;seconds 20;content:"<script";http_uri;nocase;classtype:web-application-attack;sid:100000196;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Cross Site Scripting (XSS) Attempt";flow:to_server,established;detection_filter:track by_src;seconds 20;content:"<img";http_uri;nocase;classtype:web-application-attack;sid:100000197;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Cross Site Scripting (XSS) Attempt";flow:to_server,established;detection_filter:track by_src;seconds 20;content:"alert(";http_uri;nocase;classtype:web-application-attack;sid:100000199;rev:1;)
-
 
 #Header Scanner
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Nikto Scanner Detected";flow:to_server,established;http_header:field user-agent;content:"Nikto";nocase;classtype:attempted-recon;sid:10000124;rev:1;)
