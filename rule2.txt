@@ -1,6 +1,6 @@
 #Directory Listening
-alert tcp $HOME_NET 80 -> $EXTERNAL_NET any (msg:"Information Disclosure - Directory 'DVWA/database' Exposed";flow:from_server,established;content:"200";http_stat_code;content:"Index of /DVWA/database";http_server_body;classtype:attempted-recon;sid:10000095;rev:1;)
-alert tcp $HOME_NET 80 -> $EXTERNAL_NET any (msg:"Information Disclosure - Directory 'DVWA/config' Exposed";flow:from_server,established;content:"200";http_stat_code;content:"Index of /DVWA/config";http_server_body;classtype:attempted-recon;sid:10000096;rev:1;)
+alert tcp $HOME_NET 80 -> $EXTERNAL_NET any (msg:"Information Disclosure - Directory 'DVWA/database' Exposed";flow:from_server,established;content:"200";http_stat_code;content:"Index of /DVWA/database";classtype:attempted-recon;sid:10000095;rev:1;)
+alert tcp $HOME_NET 80 -> $EXTERNAL_NET any (msg:"Information Disclosure - Directory 'DVWA/config' Exposed";flow:from_server,established;content:"200";http_stat_code;content:"Index of /DVWA/config";classtype:attempted-recon;sid:10000096;rev:1;)
 
 
 #File Upload detection
@@ -10,7 +10,7 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential Java Script File Upl
 
 #SQL Injection
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt";flow:to_server,established;detection_filter: track by_src,count 2,seconds 20;content:"SELECT * from ";http_uri;classtype:web-application-attack;sid:10000115;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt";flow:to_server,established;detection_filter: track by_src,count 2,seconds 20;content:";%00";http_uri;classtype:web-application-attack;sid:10000116;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt";flow:to_server,established;detection_filter: track by_src,count 2,seconds 20;content:"%00";http_uri;classtype:web-application-attack;sid:10000116;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt";flow:to_server,established;detection_filter: track by_src,count 2,seconds 20;content:"-- -";http_uri;classtype:web-application-attack;sid:10000117;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt";flow:to_server,established;detection_filter: track by_src,count 2,seconds 20;content:"ORDER BY ";http_uri;nocase;classtype:web-application-attack;sid:10000118;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt";flow:to_server,established;detection_filter: track by_src,count 2,seconds 20;content:"UNION SELECT ";http_uri;nocase;classtype:web-application-attack;sid:10000119;rev:1;)
