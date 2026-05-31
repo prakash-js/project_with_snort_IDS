@@ -19,7 +19,6 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - ORDER 
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - UNION SELECT";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"UNION SELECT ";http_uri;nocase;classtype:web-application-attack;sid:10000119;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - UNION SELECT POST";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"UNION SELECT ";http_client_body;nocase;classtype:web-application-attack;sid:10000120;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - SLEEP Blind";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"SLEEP(";http_uri;nocase;classtype:web-application-attack;sid:10000121;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - BENCHMARK Blind";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"BENCHMARK(";http_uri;nocase;classtype:web-application-attack;sid:10000122;rev:1;)
 
 
 #Port Scanning
@@ -30,14 +29,13 @@ alert udp $EXTERNAL_NET any -> $HOME_NET ![53,5353] (msg:"Potential UDP Port Sca
 #Command Injection
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - whoami";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"whoami";http_uri;nocase;classtype:web-application-attack;sid:10000056;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - AND chaining";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;pcre:"/(%26%26|&&)/ui";classtype:web-application-attack;sid:10000057;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - pwd";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"/DVWA/vulnerabilities/";http_uri;content:"pwd";http_uri;nocase;classtype:web-application-attack;sid:10000058;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - pwd";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"pwd";http_uri;nocase;classtype:web-application-attack;sid:10000058;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - pipe or semicolon";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;pcre:"/(%7C|%3B|\||;)/ui";classtype:web-application-attack;sid:10000059;rev:1;)
 
 
 #Path Traversal
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;content:"/../../";http_uri;sid:10000074;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected - etc passwd";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;content:"/etc/passwd";http_uri;nocase;sid:10000075;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected - Encoded";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;pcre:"/(%2e%2e%2f|%2e%2e\/|\.\.%2f)/ui";sid:10000076;rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected - proc environ";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;content:"/proc/self/environ";http_uri;nocase;sid:10000077;rev:1;)
 
 
@@ -65,8 +63,8 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Brute Force Attack Detected - 
 
 
 #DoS Attack (High Request Rate)
-alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"TCP Flood Attack Detected";detection_filter:track by_src,count 1000,seconds 1;classtype:attempted-dos;sid:10000101;rev:1;)
-alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:"ICMP Flood Attack Detected";detection_filter:track by_src,count 1000,seconds 1;classtype:attempted-dos;sid:10000102;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Intense TCP Flood Attack Detected";detection_filter:track by_src,count 2000,seconds 1;classtype:attempted-dos;sid:10000103;rev:1;)
-alert udp $EXTERNAL_NET any -> $HOME_NET any (msg:"UDP Flood Attack Detected";detection_filter:track by_src,count 1000,seconds 1;classtype:attempted-dos;sid:10000104;rev:1;)
-alert udp $EXTERNAL_NET any -> $HOME_NET any (msg:"Intense UDP Flood Attack Detected";detection_filter:track by_src,count 2000,seconds 1;classtype:attempted-dos;sid:10000105;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 1000,seconds 1;msg:"TCP Flood Attack Detected";classtype:attempted-dos;sid:10000101;rev:1;)
+alert icmp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 1000,seconds 1;msg:"ICMP Flood Attack Detected";classtype:attempted-dos;sid:10000102;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 2000,seconds 1;msg:"Intense TCP Flood Attack Detected";classtype:attempted-dos;sid:10000103;rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 1000,seconds 1;msg:"UDP Flood Attack Detected";classtype:attempted-dos;sid:10000104;rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 2000,seconds 1;msg:"Intense UDP Flood Attack Detected";classtype:attempted-dos;sid:10000105;rev:1;)
