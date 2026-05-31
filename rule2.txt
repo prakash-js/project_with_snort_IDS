@@ -1,70 +1,22 @@
-#Directory Listing
-alert tcp $HOME_NET 80 -> $EXTERNAL_NET any (msg:"Information Disclosure - Directory DVWA/database Exposed";flow:from_server,established;content:"200";http_stat_code;file_data;content:"Index of /DVWA/database";nocase;classtype:attempted-recon;sid:10000095;rev:1;)
-alert tcp $HOME_NET 80 -> $EXTERNAL_NET any (msg:"Information Disclosure - Directory DVWA/config Exposed";flow:from_server,established;content:"200";http_stat_code;file_data;content:"Index of /DVWA/config";nocase;classtype:attempted-recon;sid:10000096;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (
+  msg:"XSS Attempt - script tag";
+  flow:to_server,established;
+  content:"<script>";
+  http_client_body;
+  nocase;
+  classtype:web-application-attack;
+  sid:10000196;
+  rev:2;
+)
 
 
-#File Upload Detection
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential PHP File Upload";flow:to_server,established;content:"/DVWA/vulnerabilities/upload/";http_uri;content:".php";http_client_body;nocase;classtype:web-application-attack;sid:10000130;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential PHP5 File Upload";flow:to_server,established;content:"/DVWA/vulnerabilities/upload/";http_uri;content:".php5";http_client_body;nocase;classtype:web-application-attack;sid:10000132;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential PHTML File Upload";flow:to_server,established;content:"/DVWA/vulnerabilities/upload/";http_uri;content:".phtml";http_client_body;nocase;classtype:web-application-attack;sid:10000133;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential PHAR File Upload";flow:to_server,established;content:"/DVWA/vulnerabilities/upload/";http_uri;content:".phar";http_client_body;nocase;classtype:web-application-attack;sid:10000134;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential JavaScript File Upload";flow:to_server,established;content:"/DVWA/vulnerabilities/upload/";http_uri;content:".js";http_client_body;nocase;classtype:web-application-attack;sid:10000131;rev:1;)
-
-
-#SQL Injection
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - SELECT";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"SELECT * from ";http_uri;nocase;classtype:web-application-attack;sid:10000115;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - Null Byte";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"%00";http_uri;classtype:web-application-attack;sid:10000116;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - Comment";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"-- -";http_uri;classtype:web-application-attack;sid:10000117;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - ORDER BY";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"ORDER BY ";http_uri;nocase;classtype:web-application-attack;sid:10000118;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - UNION SELECT";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"UNION SELECT ";http_uri;nocase;classtype:web-application-attack;sid:10000119;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - UNION SELECT POST";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"UNION SELECT ";http_client_body;nocase;classtype:web-application-attack;sid:10000120;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection Attempt - SLEEP Blind";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"SLEEP(";http_uri;nocase;classtype:web-application-attack;sid:10000121;rev:1;)
-
-
-#Port Scanning
-alert tcp $EXTERNAL_NET any -> $HOME_NET ![80,53,5353] (msg:"Potential TCP Port Scan Detected";flow:to_server;detection_filter:track by_src,count 4,seconds 30;sid:10000002;rev:1;)
-alert udp $EXTERNAL_NET any -> $HOME_NET ![53,5353] (msg:"Potential UDP Port Scan Detected";flow:to_server;detection_filter:track by_src,count 4,seconds 30;sid:10000004;rev:1;)
-
-
-#Command Injection
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - whoami";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"whoami";http_uri;nocase;classtype:web-application-attack;sid:10000056;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - AND chaining";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;pcre:"/(%26%26|&&)/ui";classtype:web-application-attack;sid:10000057;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - pwd";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"pwd";http_uri;nocase;classtype:web-application-attack;sid:10000058;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Command Injection Detected - pipe or semicolon";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;pcre:"/(%7C|%3B|\||;)/ui";classtype:web-application-attack;sid:10000059;rev:1;)
-
-
-#Path Traversal
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;content:"/../../";http_uri;sid:10000074;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected - etc passwd";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;content:"/etc/passwd";http_uri;nocase;sid:10000075;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Path Traversal Detected - proc environ";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;classtype:web-application-attack;content:"/proc/self/environ";http_uri;nocase;sid:10000077;rev:1;)
-
-
-#XSS
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"XSS Attempt - script tag";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;pcre:"/(%3Cscript|<script)/ui";classtype:web-application-attack;sid:10000196;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"XSS Attempt - img tag";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;pcre:"/(%3Cimg|<img)/ui";classtype:web-application-attack;sid:10000197;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"XSS Attempt - prompt";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"prompt(";http_uri;nocase;classtype:web-application-attack;sid:10000198;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"XSS Attempt - alert";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"alert(";http_uri;nocase;classtype:web-application-attack;sid:10000199;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"XSS Attempt - onerror";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"onerror=";http_uri;nocase;classtype:web-application-attack;sid:10000200;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"XSS Attempt - javascript URI";flow:to_server,established;detection_filter:track by_src,count 2,seconds 20;content:"javascript:";http_uri;nocase;classtype:web-application-attack;sid:10000201;rev:1;)
-
-
-#Scanner Detection
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Nikto Scanner Detected";flow:to_server,established;content:"Nikto";http_header;nocase;classtype:attempted-recon;sid:10000124;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Sqlmap Scanner Detected";flow:to_server,established;content:"sqlmap";http_header;nocase;classtype:attempted-recon;sid:10000125;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"FFUF Scanner Detected";flow:to_server,established;content:"FFUF";http_header;nocase;classtype:attempted-recon;sid:10000126;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Gobuster Scanner Detected";flow:to_server,established;content:"gobuster";http_header;nocase;classtype:attempted-recon;sid:10000127;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Nmap Scanner Detected";flow:to_server,established;content:"Nmap";http_header;nocase;classtype:attempted-recon;sid:10000128;rev:1;)
-
-
-#Brute Force Attack
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Brute Force Attack Detected - login.php";flow:to_server,established;detection_filter:track by_src,count 15,seconds 20;content:"/DVWA/login.php";http_uri;content:"Login=";http_client_body;classtype:web-application-attack;sid:10000091;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Brute Force Attack Detected - brute page";flow:to_server,established;detection_filter:track by_src,count 15,seconds 20;content:"/DVWA/vulnerabilities/brute/";http_uri;content:"Login=Login";http_client_body;classtype:web-application-attack;sid:10000092;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Brute Force Attack Detected - GET username";flow:to_server,established;detection_filter:track by_src,count 15,seconds 20;content:"/DVWA/vulnerabilities/brute/?username=";http_uri;classtype:web-application-attack;sid:10000093;rev:1;)
-
-
-#DoS Attack (High Request Rate)
-alert tcp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 1000,seconds 1;msg:"TCP Flood Attack Detected";classtype:attempted-dos;sid:10000101;rev:1;)
-alert icmp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 1000,seconds 1;msg:"ICMP Flood Attack Detected";classtype:attempted-dos;sid:10000102;rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 2000,seconds 1;msg:"Intense TCP Flood Attack Detected";classtype:attempted-dos;sid:10000103;rev:1;)
-alert udp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 1000,seconds 1;msg:"UDP Flood Attack Detected";classtype:attempted-dos;sid:10000104;rev:1;)
-alert udp $EXTERNAL_NET any -> $HOME_NET any (detection_filter:track by_src,count 2000,seconds 1;msg:"Intense UDP Flood Attack Detected";classtype:attempted-dos;sid:10000105;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (
+  msg:"XSS Attempt - script tag in URI";
+  flow:to_server,established;
+  content:"<script>";
+  http_uri;
+  nocase;
+  classtype:web-application-attack;
+  sid:10000197;
+  rev:1;
+)
