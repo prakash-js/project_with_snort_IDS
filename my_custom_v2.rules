@@ -100,3 +100,5 @@ alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Potential Reverse Connec
 #The web server handled external web traffic through adedicated interface, while operating system traffic was routed through a separate higher-metric interface.
 #Internal trusted devices were whitelisted. 
 #Under these conditions, unexpected outbound non-web connections were treated as potential reverse shell activity.
+
+# Preprocessor Rules Reference: https://github.com/chenkc/snort2.9/blob/master/snort-2.9.11.1/preproc_rules/preprocessor.rules
