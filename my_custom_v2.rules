@@ -1,0 +1,102 @@
+
+#File Upload Detection
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential PHP File Upload";flow:to_server,established;content:".php";http_client_body;content:"/DVWA/vulnerabilities/upload/";nocase;http_uri;nocase;sid:10000132;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Potential JS File Upload";flow:to_server,established;content:".js";http_client_body;content:"/DVWA/vulnerabilities/upload/";nocase;http_uri;nocase;sid:10000131;rev:1;)
+
+
+#PortScanning
+alert tcp $EXTERNAL_NET any -> $HOME_NET ![80,53,5353] (msg:"Potential TCP Port Scan Detected";flow:to_server;detection_filter:track by_src,count 4,seconds 30;sid:10000002;rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET ![53,5353] (msg:"Potential UDP Port Scan Detected";flow:to_server;detection_filter:track by_src,count 4,seconds 30;sid:10000004;rev:1;)
+
+#SQL Injection
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected"(SELECT * from) URI";content:"SELECT * from";http_uri;nocase;classtype:web-application-attack;sid:10000023;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected"(UNION SELECT) URI";content:"UNION SELECT";http_uri;nocase;classtype:web-application-attack;sid:10000024;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(ORDER BY) URI";content:"ORDER BY ";http_uri;nocase;classtype:web-application-attack;sid:10000025;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(-- -) URI";content:"-- -";http_uri;nocase;classtype:web-application-attack;sid:10000026;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(1=1) - URI";content:"' OR 1=1--";http_uri;nocase;classtype:web-application-attack;sid:10000027;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(SELECT @@VERSION) - URI";content:"@@VERSION";http_uri;nocase;classtype:web-application-attack;sid:10000028;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected"(SELECT * from) HTTP BODY";content:"SELECT * from";http_client_body;nocase;classtype:web-application-attack;sid:11000023;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected"(UNION SELECT) HTTP BODY";content:"UNION SELECT";http_client_body;nocase;classtype:web-application-attack;sid:11000024;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(ORDER BY) HTTP BODY";content:"ORDER BY ";http_client_body;nocase;classtype:web-application-attack;sid:11000025;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(-- -) HTTP BODY";content:"-- -";http_client_body;nocase;classtype:web-application-attack;sid:11000026;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(1=1) - HTTP BODY";content:"' OR 1=1--";http_client_body;nocase;classtype:web-application-attack;sid:11000027;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential SQL Injection Detected(SELECT @@VERSION) - HTTP BODY";content:"@@VERSION";http_client_body;nocase;classtype:web-application-attack;sid:11000028;rev:1;)
+
+
+#XSS attack 
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(<script) - URI";content:"<script";http_uri;nocase;classtype:web-application-attack;sid:10000033;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(<img) - URI";content:"<img";http_uri;nocase;classtype:web-application-attack;sid:10000034;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(alert() - URI";content:"alert(";http_uri;nocase;classtype:web-application-attack;sid:10000035;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(prompt() - URI";content:"prompt(";http_uri;nocase;classtype:web-application-attack;sid:10000036;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(console.log) - URI";content:"console.log(";http_uri;classtype:web-application-attack;nocase;sid:10000037;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(javascript:) - URI";content:"javascript:";http_uri;classtype:web-application-attack;nocase;sid:10000039;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(<script) - HTTP BODY";content:"<script";http_client_body;nocase;classtype:web-application-attack;sid:11000033;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(<img) - HTTP BODY";content:"<img";http_client_body;nocase;classtype:web-application-attack;sid:11000034;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(alert() - HTTP BODY";content:"alert(";http_client_body;nocase;classtype:web-application-attack;sid:11000035;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(prompt() - HTTP BODY";content:"prompt(";http_client_body;nocase;classtype:web-application-attack;sid:11000036;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(console.log) - HTTP BODY";content:"console.log(";http_client_body;classtype:web-application-attack;nocase;sid:11000037;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 3, seconds 20;msg:"Potential XSS Attempt Detected(javascript:) - HTTP BODY";content:"javascript:";http_client_body;classtype:web-application-attack;nocase;sid:11000039;rev:1;)
+
+
+#Brute force attack
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/login.php";http_uri;msg:"BruteForce attack Detected";content:"Login=";http_client_body;classtype:web-application-attack;sid:10000091;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/";http_uri;msg:"BruteForce attack Detected";content:"Login=Login";http_client_body;classtype:web-application-attack;sid:10000092;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 15, seconds 20;content:"/DVWA/vulnerabilities/brute/?username=";http_uri;msg:"BruteForce attack Detected";classtype:web-application-attack;sid:10000093;rev:1;)
+
+#PATH TRAVERSAL
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/etc/passwd) - URI";content:"/etc/passwd";http_uri;nocase;classtype:web-application-attack;sid:10000045;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(etc/host) - URI";content:"/etc/host";http_uri;nocase;classtype:web-application-attack;sid:10000046;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/../../) - URI";content:"/../../";http_uri;nocase;classtype:web-application-attack;sid:10000047;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/proc/self/environ) - URI";content:"/proc/self/environ";http_uri;nocase;classtype:web-application-attack;sid:10000048;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/etc/passwd) - HTTP BODY";content:"/etc/passwd";http_client_body;nocase;classtype:web-application-attack;sid:11000045;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/etc/host) - HTTP BODY";content:"/etc/host";http_client_body;nocase;classtype:web-application-attack;sid:11000046;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/../../) - HTTP BODY";content:"/../../";http_client_body;nocase;classtype:web-application-attack;sid:11000047;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Path Traversal Detected(/proc/self/environ) - HTTP BODY";content:"/proc/self/environ";http_client_body;nocase;classtype:web-application-attack;sid:11000048;rev:1;)
+
+
+#COMMAND INJECTION
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential  Command Injection Detected(|) - URI";content:"|";http_uri;classtype:web-application-attack;sid:10000051;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential  Command Injection Detected(|) - HTTP BODY";content:"|";http_client_body;classtype:web-application-attack;sid:11000051;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Command Injection Detected(pwd) - URI";content:"pwd";http_uri;classtype:web-application-attack;nocase;sid:10000055;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Command Injection Detected(pwd) - HTTP BODY";content:"pwd";http_client_body;classtype:web-application-attack;nocase;sid:11000055;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Command Injection Detected(whoami) - URI";content:"whoami";http_uri;classtype:web-application-attack;nocase;sid:10000056;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Command Injection Detected(whoami) - HTTP BODY";content:"whoami";http_client_body;classtype:web-application-attack;nocase;sid:11000056;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Command Injection Detected(&&) - URI";content:"&&";http_uri;classtype:web-application-attack;nocase;sid:10000057;rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (flow:to_server;detection_filter: track by_src, count 2, seconds 20;msg:"Potential Command Injection Detected(&&) - HTTP BODY";content:"&&";http_client_body;classtype:web-application-attack;nocase;sid:11000057;rev:1;)
+
+#DOS attack (HIGH TRAFFIC RATE)
+alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "TCP-flag-type flood Attack  Detected";classtype:denial-of-service; sid:10000101;rev:1;)
+alert icmp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "ICMP flood Attack  Detected";classtype:denial-of-service sid:10000102;rev:1;)
+alert tcp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense TCP-flag-type flood attack is Detected ";classtype:denial-of-service sid:10000103;rev:1;)
+alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 1000, seconds 1; msg: "UDP flood Attack Detected";classtype:denial-of-service sid:10000104;rev:1;)
+alert udp any any -> $HOME_NET any (detection_filter: track by_src, count 2000, seconds 1; msg: "Very Intense udp flood Attack Detected";classtype:denial-of-service sid:10000105;rev:1;)
+
+
+# Automation Tool Detection via HTTP-HEADER(useragent)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Nikto Scanner Detected";flow:to_server,established;content:"Nikto"; http_header; nocase;classtype:attempted-recon;sid:10000124; rev:2;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"Sqlmap Scanner Detected";flow:to_server,established;content:"sqlmap"; http_header; nocase;classtype:attempted-recon;sid:10000125; rev:2;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"FFUF Scanner Detected";flow:to_server,established;content:"FUZZ"; http_header; nocase;classtype:attempted-recon;sid:10000126; rev:2;)
+
+
+#Reverse Connection Detection
+alert tcp $HOME_NET !80 -> $EXTERNAL_NET !80 (msg:"Potential Reverse Connection via TCP Detected"; flags:PA; sid:1100001;rev:1;)
+alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Potential Reverse Connection via TCP Detected";content:"/bin/bash";nocase;classtype:malware-cnc;sid:1100002;rev:1;)
+alert tcp $HOME_NET  !80 -> $EXTERNAL_NET !80 (msg:"Potential Reverse Connection via TCP Detected";content:"/bin/bash";nocase;classtype:malware-cnc;sid:1100003;rev:1;)
+alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Potential Reverse Connection via TCP Detected";content:"service --status-all";nocase;classtype:malware-cnc;sid:1100004;rev:1;)
+alert tcp $HOME_NET !80 ->  $EXTERNAL_NET !80 (msg:"Potential Reverse Connection via TCP Detected";content:"service --status-all";nocase;classtype:malware-cnc;sid:1100005;rev:1;)
+alert tcp $EXTERNAL_NET  !80 ->  $HOME_NET !80 (msg:"Potential Reverse Connection via TCP Detected";content:"sudo -l";nocase;classtype:malware-cnc;sid:1100006;rev:1;)
+alert tcp $HOME_NET !80 ->  $EXTERNAL_NET !80 (msg:"Potential Reverse Connection via TCP Detected";content:"sudo -l";nocase;classtype:malware-cnc;sid:1100007;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"www-data";nocase;classtype:malware-cnc;sid:1100008;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"www-data";nocase;classtype:malware-cnc;sid:1100009;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"/bin/bash";nocase;classtype:malware-cnc; sid:11000010;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"/bin/bash";nocase;classtype:malware-cnc; sid:11000011;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"sudo -l";nocase;classtype:malware-cnc; sid:11000012;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"sudo -l";nocase;classtype:malware-cnc; sid:11000013;rev:1;)
+alert udp $HOME_NET 0:65535 ->  $EXTERNAL_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"pwd";nocase;classtype:malware-cnc; sid:11000014;rev:1;)
+alert udp $EXTERNAL_NET 0:65535 ->  $HOME_NET any (msg:"Potential Reverse Connection via UDP Detected";content:"pwd";nocase;classtype:malware-cnc; sid:11000015;rev:1;)
+
+
+#This rule(sid:1100001) was developed for a controlled lab environment using a dual-interface network configuration.
+#The web server handled external web traffic through adedicated interface, while operating system traffic was routed through a separate higher-metric interface.
+#Internal trusted devices were whitelisted. 
+#Under these conditions, unexpected outbound non-web connections were treated as potential reverse shell activity.
