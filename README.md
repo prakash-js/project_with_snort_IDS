@@ -52,3 +52,5 @@ Using a Kali Linux attacker machine, the following attacks were simulated and de
 * Dual-interface configuration for traffic separation
 * IP whitelisting using `threshold.conf`
 * Security monitoring and alert analysis
+
+Preprocessor Rules Reference: [Snort 2.x Preprocessor Rule Definitions](https://github.com/chenkc/snort2.9/blob/master/snort-2.9.11.1/preproc_rules/preprocessor.rules)
